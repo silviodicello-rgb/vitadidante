@@ -1,0 +1,291 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Le Finestre di Dante</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: un percorso di 12 finestre ad arco in ordine cronologico, su pietra serena scura (pensato per LIM); sotto, il taccuino di classe che si riempie. Tema unico scuro scelto apposta. */
+:root{
+  --stone:#17221f; --stone-2:#20302b; --stone-3:#2b3f39;
+  --marble:#ece6d6; --muted:#a9b7b0;
+  --gold:#d8b25a; --gold-ink:#2a1f08;
+  --ok:#6fc48f; --bad:#e4a06b;
+  --display:"Cinzel", "Trajan Pro", Georgia, serif;
+  --body:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--stone);color:var(--marble)}
+body{font-family:var(--body);font-size:18px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,3.6vw,2.6rem);letter-spacing:.06em;margin:0;text-wrap:balance}
+h1 small{display:block;font-family:var(--body);font-weight:500;font-size:1rem;letter-spacing:.02em;color:var(--muted);margin-top:4px}
+h2{font-family:var(--display);font-size:1.3rem;letter-spacing:.06em;margin:0}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn{background:var(--stone-3);border:1px solid #3d564e;border-radius:8px;padding:10px 18px;font-weight:700}
+.btn:hover:not(:disabled){background:#355047}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.gold{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.btn.gold:hover:not(:disabled){background:#e6c36f}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.progress{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.bar{flex:1;height:10px;background:var(--stone-2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);width:0;transition:width .4s}
+.progress b{color:var(--gold);font-variant-numeric:tabular-nums}
+
+/* Percorso */
+.path{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+@media (max-width:900px){.path{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:560px){.path{grid-template-columns:repeat(3,1fr)}}
+.win{position:relative;aspect-ratio:3/3.6;max-width:100%;border:0;border-radius:999px 999px 8px 8px;padding:18% 6px 10px;
+  background:linear-gradient(180deg,#3a5a50,#264038);box-shadow:inset 0 0 0 3px #4e7064;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;text-align:center;transition:transform .15s,filter .15s}
+.win .yr{font-family:var(--display);font-weight:700;font-size:clamp(1.1rem,2.2vw,1.6rem);color:var(--gold)}
+.win .tt{font-size:clamp(.8rem,1.4vw,1rem);line-height:1.2;color:var(--marble);text-wrap:balance}
+.win .st{position:absolute;top:10%;left:50%;transform:translateX(-50%);font-size:1.3rem;color:var(--gold)}
+.win:hover:not(:disabled){transform:translateY(-3px);filter:brightness(1.12)}
+.win.next{box-shadow:inset 0 0 0 3px var(--gold),0 0 0 4px rgba(216,178,90,.25)}
+.win.done{background:linear-gradient(180deg,#2f4a41,#22362f)}
+.win:disabled{cursor:default;background:var(--stone-2);box-shadow:inset 0 0 0 2px #2f443e}
+.win:disabled .yr,.win:disabled .tt{color:#55695f}
+
+/* Taccuino */
+.notebook{background:#efe8d4;color:#2b2a24;border-radius:14px;padding:22px clamp(16px,3vw,32px);display:flex;flex-direction:column;gap:12px}
+.notebook h2{color:#5b4512}
+.notebook ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.notebook li{display:grid;grid-template-columns:4.2em 1fr;gap:10px;border-bottom:1px solid #d9cfb4;padding-bottom:8px}
+.notebook li b{font-family:var(--display);color:#7a5c17}
+.notebook .empty{color:#7c7663;font-style:italic;margin:0}
+
+/* Finestra aperta */
+.overlay{position:fixed;inset:0;background:rgba(8,14,12,.88);display:flex;align-items:center;justify-content:center;z-index:20;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.card{background:var(--stone-2);border:1px solid #3d564e;border-radius:18px;max-width:920px;width:100%;max-height:100%;overflow:auto;padding:28px clamp(18px,4vw,44px);display:flex;flex-direction:column;gap:18px}
+.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.95rem;letter-spacing:.08em;text-transform:uppercase}
+.meta b{color:var(--gold);font-family:var(--display);letter-spacing:.04em;font-size:1.1rem}
+.card h3{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.2rem);margin:0;letter-spacing:.03em;text-wrap:balance}
+.story{font-size:clamp(1.15rem,2.1vw,1.45rem);line-height:1.55;max-width:62ch;margin:0}
+.story mark{background:transparent;color:var(--gold);font-weight:700}
+.curio{border-left:4px solid var(--gold);padding:6px 0 6px 14px;color:var(--muted);font-size:1.08rem;margin:0}
+.curio b{color:var(--marble)}
+.q{font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:700;line-height:1.25;margin:0;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;background:var(--stone-3);border:2px solid transparent;border-radius:10px;padding:14px 18px;font-size:clamp(1.1rem,2vw,1.35rem);display:flex;gap:14px;align-items:baseline}
+.opt i{font-style:normal;font-family:var(--display);color:var(--gold);font-weight:700}
+.opt.right{border-color:var(--ok);background:#24463a}
+.opt.wrong{border-color:var(--bad);opacity:.7}
+.fb{border-radius:10px;padding:14px 18px;font-size:1.15rem;margin:0}
+.fb.ok{background:#1f3d32;color:#d8f1e1}
+.fb.no{background:#3d2f20;color:#f3dfc6}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* Linea del tempo */
+.tl-slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.slot{min-height:92px;border:2px dashed #4b645c;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px;justify-content:center;text-align:left;background:transparent}
+.slot .n{font-family:var(--display);color:var(--gold);font-weight:700}
+.slot.ok{border:2px solid var(--ok)} .slot.no{border:2px solid var(--bad)}
+.slot .y{font-family:var(--display);font-size:.95rem;color:var(--muted)}
+.pool{display:flex;flex-wrap:wrap;gap:10px}
+.ev{background:var(--stone-3);border:1px solid #4b645c;border-radius:10px;padding:10px 14px;font-size:1.05rem;text-align:left;max-width:100%}
+.ev:hover{background:#355047}
+.hint{color:var(--muted);font-size:1rem;margin:0}
+@media (prefers-reduced-motion:reduce){.win,.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Le Finestre di Dante<small>Un viaggio in 12 tappe nella vita di Dante Alighieri (1265–1321)</small></h1>
+    <div class="tools">
+      <button class="btn gold" id="finalBtn" disabled>Sfida finale: rimetti in ordine la vita</button>
+      <button class="btn" id="resetBtn">Ricomincia</button>
+    </div>
+  </header>
+
+  <div class="progress"><span>Finestre aperte</span><div class="bar"><i id="barFill"></i></div><b id="count">0 / 12</b></div>
+
+  <div class="path" id="path"></div>
+
+  <section class="notebook" aria-live="polite">
+    <h2>Il taccuino della classe</h2>
+    <p class="hint" style="color:#6d6754">Ogni finestra completata aggiunge qui una riga. Alla fine avrete il riassunto della vita di Dante.</p>
+    <ol id="notes"></ol>
+  </section>
+</div>
+
+<div class="overlay" id="ov" hidden><div class="card" id="card"></div></div>
+
+<script>
+const STOPS = [
+ {y:"1265", t:"Nasce a Firenze",
+  s:"Dante Alighieri nasce a <mark>Firenze</mark> nel maggio del 1265, sotto il segno dei Gemelli. Per tutta la vita sarà convinto di essere una persona speciale, scelta dal destino per una grande missione.",
+  c:"<b>Lo sapevi?</b> Il suo vero nome era <b>Durante</b>. «Dante» è un diminutivo, ma lui si firmò sempre così.",
+  q:"In quale città nasce Dante?", o:["Roma","Firenze","Ravenna"], a:1,
+  n:"Nasce a Firenze nel 1265 e si sente predestinato a una grande missione."},
+ {y:"1200", t:"La sua città",
+  s:"La Firenze di Dante è una città medievale piena di <mark>torri</mark> e vicoli stretti. È ricchissima grazie ai banchieri e alla sua moneta d'oro, il <mark>fiorino</mark>. A Dante però i nuovi ricchi non piacciono: rimpiange la Firenze antica, piccola e onesta.",
+  c:"<b>Lo sapevi?</b> Il Duomo con la cupola non c'era ancora. L'edificio più amato da Dante era il <b>Battistero di San Giovanni</b>, dove era stato battezzato.",
+  q:"Che cosa pensa Dante della Firenze ricca dei banchieri?", o:["La ammira molto","Non gli piace: preferisce la Firenze antica","Non gli interessa"], a:1,
+  n:"Firenze è ricca grazie al fiorino, ma Dante rimpiange la città antica e onesta."},
+ {y:"1274", t:"Beatrice",
+  s:"Da ragazzo Dante incontra <mark>Beatrice</mark>, la donna che amerà per sempre. Racconta che quando la vedeva tremava e quasi sveniva. Beatrice muore giovane, nel 1290, e Dante le dedica il libro della <mark>Vita Nova</mark>.",
+  c:"<b>Lo sapevi?</b> Nella Commedia sarà proprio Beatrice a guidarlo in Paradiso.",
+  q:"A chi è dedicata la Vita Nova?", o:["A Beatrice","A sua moglie","A sua madre"], a:0,
+  n:"Ama Beatrice, morta nel 1290, e le dedica la Vita Nova."},
+ {y:"1277", t:"Un matrimonio deciso",
+  s:"A soli 12 anni Dante viene <mark>promesso sposo</mark> a Gemma Donati, di una famiglia potente. Allora i matrimoni li decidevano le famiglie, spesso per stringere alleanze. Dante e Gemma avranno tre figli: Iacopo, Pietro e Antonia.",
+  c:"<b>Lo sapevi?</b> La moglie di Dante non è Beatrice: è <b>Gemma</b>.",
+  q:"Chi decide il matrimonio tra Dante e Gemma?", o:["Dante, da solo","Gemma","Le loro famiglie"], a:2,
+  n:"A 12 anni è promesso a Gemma Donati: un matrimonio deciso dalle famiglie."},
+ {y:"1289", t:"Soldato a cavallo",
+  s:"Come ogni cittadino, Dante deve anche combattere. Nel 1289 partecipa alla battaglia di <mark>Campaldino</mark> contro Arezzo, a cavallo, nella prima fila. Racconta di aver avuto molta paura, ma Firenze vince.",
+  c:"<b>Lo sapevi?</b> Alcuni ricordi di guerra finiscono poi nei versi della Commedia.",
+  q:"In quale battaglia combatte Dante?", o:["Campaldino","Waterloo","Legnano"], a:0,
+  n:"Nel 1289 combatte a cavallo a Campaldino."},
+ {y:"1295", t:"Entra in politica",
+  s:"A trent'anni Dante decide di fare <mark>politica</mark>. Firenze è guelfa, ma i guelfi sono divisi in due partiti nemici: i <mark>Bianchi</mark> e i <mark>Neri</mark>. Dante sta con i Bianchi e nel 1300 diventa <mark>priore</mark>, cioè uno dei governanti della città.",
+  c:"<b>Lo sapevi?</b> Per fare politica bisognava iscriversi a un'Arte (una corporazione). Dante scelse quella dei Medici e Speziali.",
+  q:"Con quale partito sta Dante?", o:["Con i Neri","Con i Bianchi","Con nessuno"], a:1,
+  n:"Entra in politica con i Guelfi Bianchi e nel 1300 diventa priore."},
+ {y:"1301", t:"Il colpo di Stato",
+  s:"Il papa <mark>Bonifacio VIII</mark> vuole controllare Firenze e aiuta i Neri. Manda in città un principe francese, Carlo di Valois, con i soldati. Nel novembre 1301 i Neri prendono il potere. Dante in quel momento è lontano, a Roma, come ambasciatore dal papa.",
+  c:"<b>Lo sapevi?</b> Dante odierà Bonifacio VIII per sempre: nella Commedia gli prepara un posto all'Inferno.",
+  q:"Chi aiuta i Neri a prendere il potere?", o:["L'imperatore","Il papa Bonifacio VIII","Il re d'Inghilterra"], a:1,
+  n:"Nel 1301 i Neri, aiutati da papa Bonifacio VIII, prendono Firenze."},
+ {y:"1302", t:"L'esilio",
+  s:"I Neri condannano Dante con accuse false e poi lo condannano a <mark>morte</mark> se tornerà. Dante diventa un <mark>esule</mark>: deve vivere lontano dalla sua città. Non rivedrà mai più Firenze.",
+  c:"<b>Lo sapevi?</b> Nel 1315 Firenze gli offrì di tornare, ma solo pagando e chiedendo perdono in pubblico. Dante rifiutò.",
+  q:"Che cosa significa essere «esule»?", o:["Essere in prigione","Essere costretto a vivere lontano dalla propria città","Essere molto ricco"], a:1,
+  n:"Nel 1302 è condannato e diventa esule: non tornerà mai più a Firenze."},
+ {y:"1304", t:"Ospite delle corti",
+  s:"Da esule Dante viaggia per l'Italia e vive come <mark>ospite</mark> di signori potenti: a Verona, a Bologna, in Lunigiana dai Malaspina. Scrive opere in cui sostiene un'idea nuova: anche il <mark>volgare</mark>, la lingua parlata, può essere usato per le opere importanti, non solo il latino.",
+  c:"<b>Lo sapevi?</b> Proprio in esilio Dante riprende a scrivere la <b>Commedia</b>.",
+  q:"Quale lingua vuole valorizzare Dante?", o:["Il latino","Il volgare, la lingua parlata","Il francese"], a:1,
+  n:"In esilio vive presso varie corti e difende l'uso del volgare."},
+ {y:"1310", t:"La speranza nell'imperatore",
+  s:"Nel 1310 l'imperatore <mark>Enrico VII</mark> scende in Italia. Dante spera che riporti la pace e che gli esuli possano tornare a casa. Gli scrive lettere piene di entusiasmo. Ma nel 1313 Enrico muore all'improvviso.",
+  c:"<b>Lo sapevi?</b> Per sostenere l'impero Dante scrisse anche un trattato, la <b>Monarchia</b>.",
+  q:"Che cosa spera Dante dall'imperatore Enrico VII?", o:["Che porti la pace e lo faccia tornare a Firenze","Che lo nomini re","Che distrugga Firenze"], a:0,
+  n:"Spera nell'imperatore Enrico VII, ma nel 1313 Enrico muore."},
+ {y:"1307", t:"La Commedia",
+  s:"Il capolavoro di Dante è la <mark>Commedia</mark>: un viaggio immaginario in tre parti, <mark>Inferno, Purgatorio e Paradiso</mark>. Dentro mette personaggi veri, anche persone ancora vive, con giudizi durissimi sui suoi nemici. Ci lavora per quasi tutta la vita.",
+  c:"<b>Lo sapevi?</b> Si racconta che gli ultimi canti del Paradiso furono ritrovati dopo la sua morte grazie a un sogno del figlio Iacopo.",
+  q:"In quante parti è divisa la Commedia?", o:["Due","Tre","Cinque"], a:1,
+  n:"Scrive la Commedia: Inferno, Purgatorio e Paradiso."},
+ {y:"1321", t:"Ravenna",
+  s:"Gli ultimi anni Dante li passa a <mark>Ravenna</mark>, ospite del signore Guido Novello da Polenta. Tornando da un viaggio a Venezia si ammala, forse di malaria, e muore nel settembre del <mark>1321</mark>. Aveva appena finito il Paradiso.",
+  c:"<b>Lo sapevi?</b> Ancora oggi la tomba di Dante si trova a Ravenna, non a Firenze.",
+  q:"Dove muore Dante?", o:["A Firenze","A Ravenna","A Venezia"], a:1,
+  n:"Muore a Ravenna nel 1321, dopo aver finito la Commedia."}
+];
+const EVENTS=[
+ {y:"1265",t:"Dante nasce a Firenze"},
+ {y:"1277",t:"Viene promesso sposo a Gemma Donati"},
+ {y:"1289",t:"Combatte a Campaldino"},
+ {y:"1300",t:"Diventa priore di Firenze"},
+ {y:"1302",t:"Viene condannato e va in esilio"},
+ {y:"1310",t:"L'imperatore Enrico VII scende in Italia"},
+ {y:"1321",t:"Muore a Ravenna"}
+];
+
+const $=s=>document.querySelector(s);
+let done=[];
+function nextIdx(){return done.length;}
+
+function render(){
+  const nx=nextIdx();
+  $("#path").innerHTML=STOPS.map((st,i)=>{
+    const isDone=i<nx, isNext=i===nx;
+    const yr = (i===1) ? "Firenze" : (i===10 ? "Il poema" : st.y);
+    return `<button class="win ${isDone?'done':''} ${isNext?'next':''}" data-i="${i}" ${i>nx?'disabled':''} aria-label="Finestra ${i+1}: ${st.t}">
+      ${isDone?'<span class="st" aria-hidden="true">★</span>':''}
+      <span class="yr">${i>nx?(i+1):yr}</span><span class="tt">${i>nx?'':st.t}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".win:not(:disabled)").forEach(b=>b.onclick=()=>openStop(+b.dataset.i));
+  $("#count").textContent=`${nx} / ${STOPS.length}`;
+  $("#barFill").style.width=(nx/STOPS.length*100)+"%";
+  $("#notes").innerHTML = nx ? STOPS.slice(0,nx).map((s,i)=>`<li><b>${i===1?'—':i===10?'—':s.y}</b><span>${s.n}</span></li>`).join("")
+    : '<li style="display:block;border:0"><p class="empty">Ancora vuoto: aprite la prima finestra.</p></li>';
+  $("#finalBtn").disabled = nx<STOPS.length;
+}
+
+function openStop(i){
+  const st=STOPS[i], card=$("#card");
+  card.innerHTML=`
+    <div class="meta"><span>Finestra ${i+1} di ${STOPS.length}</span><b>${(i===1||i===10)?'':st.y}</b></div>
+    <h3>${st.t}</h3>
+    <p class="story">${st.s}</p>
+    <p class="curio">${st.c}</p>
+    <div class="row"><button class="btn gold" id="toQ">Ho letto: alla domanda</button><button class="btn" id="close">Chiudi</button></div>`;
+  $("#close").onclick=closeOv;
+  $("#toQ").onclick=()=>ask(i);
+  $("#ov").hidden=false; $("#toQ").focus();
+}
+
+function ask(i){
+  const st=STOPS[i], card=$("#card");
+  card.innerHTML=`
+    <div class="meta"><span>Finestra ${i+1} · domanda</span><b>${st.t}</b></div>
+    <p class="q">${st.q}</p>
+    <div class="opts">${st.o.map((o,k)=>`<button class="opt" data-k="${k}"><i>${"ABC"[k]}</i><span>${o}</span></button>`).join("")}</div>
+    <div id="fbBox"></div>
+    <div class="row"><button class="btn" id="back">Rileggi il racconto</button></div>`;
+  $("#back").onclick=()=>openStop(i);
+  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;
+    if(k===st.a){
+      card.querySelectorAll(".opt").forEach(x=>{x.onclick=null;if(+x.dataset.k===st.a)x.classList.add("right");});
+      $("#fbBox").innerHTML=`<p class="fb ok">Esatto! Nel taccuino scriviamo: <b>${st.n}</b></p>`;
+      const r=card.querySelector(".row");
+      r.innerHTML=`<button class="btn gold" id="save">${i<STOPS.length-1?'Scrivi nel taccuino e vai avanti':'Scrivi nel taccuino'}</button>`;
+      $("#save").onclick=()=>{ if(!done.includes(i))done.push(i); closeOv(); render(); };
+      $("#save").focus();
+    } else {
+      b.classList.add("wrong"); b.onclick=null;
+      $("#fbBox").innerHTML=`<p class="fb no">Non proprio. Ripensate al racconto e provate un'altra risposta.</p>`;
+    }
+  });
+}
+function closeOv(){$("#ov").hidden=true;}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#ov").hidden)closeOv();});
+
+function openFinal(){
+  const order=[...EVENTS.keys()].sort(()=>Math.random()-.5);
+  let placed=[];
+  const card=$("#card");
+  function draw(checked){
+    const right=placed.filter((v,s)=>v===s).length;
+    card.innerHTML=`
+     <div class="meta"><span>Sfida finale</span><b>La linea del tempo</b></div>
+     <p class="q">Rimettete in ordine la vita di Dante, dal primo all'ultimo evento.</p>
+     <p class="hint">Cliccate gli eventi nell'ordine giusto. Per togliere un evento già messo, cliccatelo.</p>
+     <div class="tl-slots">${EVENTS.map((_,s)=>{const ev=placed[s]!==undefined?EVENTS[placed[s]]:null;
+        const cls=checked&&ev?(placed[s]===s?'ok':'no'):'';
+        return `<button class="slot ${cls}" data-slot="${s}" ${checked?'disabled':''}><span class="n">${s+1}</span>${ev?`<span>${ev.t}</span>${checked?`<span class="y">${ev.y}</span>`:''}`:'<span class="hint">…</span>'}</button>`}).join("")}</div>
+     <div class="pool">${order.filter(i=>!placed.includes(i)).map(i=>`<button class="ev" data-ev="${i}">${EVENTS[i].t}</button>`).join("")}</div>
+     ${checked?`<p class="fb ${right===EVENTS.length?'ok':'no'}">${right===EVENTS.length?'Perfetto! La vita di Dante è in ordine.':`Giusti ${right} su ${EVENTS.length}. Le caselle arancioni sono da sistemare: riprovate.`}</p>`:''}
+     <div class="row">
+      ${checked&&right<EVENTS.length?'<button class="btn gold" id="retry">Riprova</button>':''}
+      ${!checked?`<button class="btn gold" id="check" ${placed.length<EVENTS.length?'disabled':''}>Controlla</button>`:''}
+      <button class="btn" id="close">Chiudi</button></div>`;
+    card.querySelectorAll("[data-ev]").forEach(b=>b.onclick=()=>{const free=EVENTS.findIndex((_,s)=>placed[s]===undefined);placed[free]=+b.dataset.ev;draw(false);});
+    if(!checked)card.querySelectorAll("[data-slot]").forEach(b=>b.onclick=()=>{const s=+b.dataset.slot;if(placed[s]!==undefined){delete placed[s];draw(false);}});
+    const ch=$("#check"); if(ch)ch.onclick=()=>draw(true);
+    const rt=$("#retry"); if(rt)rt.onclick=()=>{placed=placed.map((v,s)=>v===s?v:undefined);draw(false);};
+    $("#close").onclick=closeOv;
+  }
+  draw(false); $("#ov").hidden=false;
+}
+
+$("#finalBtn").onclick=openFinal;
+$("#resetBtn").onclick=()=>{
+  const b=$("#resetBtn");
+  if(b.dataset.arm){done=[];render();b.textContent="Ricomincia";delete b.dataset.arm;}
+  else{b.dataset.arm=1;b.textContent="Conferma: svuota il taccuino";setTimeout(()=>{if(b.dataset.arm){delete b.dataset.arm;b.textContent="Ricomincia";}},3000);}
+};
+render();
+</script>
+
+</body></html>
